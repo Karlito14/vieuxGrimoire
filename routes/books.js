@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const Book = require('../models/Book');
 const booksCtrl = require('../controllers/books');
 
 router.post('/', booksCtrl.createBook);
