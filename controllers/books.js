@@ -78,15 +78,14 @@ exports.addRating = (req, res, next) => {
                 .then(() => {
                     Book.findOne({_id: req.params.id})
                     .then(book => {
-                        console.log(book.averageRating)
+                        
                         const somme = book.ratings.reduce((acc, rating) => acc + rating.grade, 0);
-                        book.averageRating = somme / book.ratings.length;
-                        console.log(book.averageRating)
+                        book.averageRating = Math.round((somme / book.ratings.length) * 10) / 10;
+                        
                         Book.updateOne({ _id: req.params.id}, {averageRating: book.averageRating})
                         .then(() => { 
                             Book.findOne({_id: req.params.id})
                             .then(book => {
-                                console.log(book)
                                 res.status(200).json(book)
                             })
                             .catch(error => res.status(400).json({ error }));

@@ -1,4 +1,7 @@
 const multer = require('multer');
+const sharp = require ('sharp');
+const fs = require('fs');
+
 const MIME_TYPES = {
     'image/jpg': 'jpg',
     'image/jpeg': 'jpeg',
@@ -17,3 +20,29 @@ const storage = multer.diskStorage({
 });
 
 module.exports = multer({ storage }).single('image');
+
+const convertToWebp = (req, res, next) => {
+    if (req.file && req.file.path) {
+        const originalImagePath = req.file.path;
+        const outputPath = req.file.path.replace(/\.[^.]+$/, '.webp');
+        
+        sharp(originalImagePath)
+            .toFormat('webp')
+            .toFile(outputPath)
+            .then(() => {
+                if (fs.existsSync(originalImagePath)) {
+                    fs.unlinkSync(originalImagePath);
+                }
+                req.file.path = outputPath;
+                next();
+            })
+            .catch(error => {
+                console.error('Error converting image to webp:', error);
+                next();
+            });
+    } else {
+        next();
+    }
+};
+
+module.exports.convertToWebp = convertToWebp;

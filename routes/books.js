@@ -3,10 +3,11 @@ const router = express.Router();
 const booksCtrl = require('../controllers/books');
 const auth = require('../middleware/auth');
 const multer = require('../middleware/multer-config');
+const { convertToWebp } = require('../middleware/multer-config');
 
-router.post('/', auth, multer, booksCtrl.createBook);
+router.post('/', auth, multer, convertToWebp, booksCtrl.createBook);
 router.post('/:id/rating', booksCtrl.addRating);
-router.put('/:id', auth, multer, booksCtrl.modifyBook);
+router.put('/:id', auth, multer, convertToWebp, booksCtrl.modifyBook);
 router.delete('/:id', auth, booksCtrl.deleteBook);
 router.get('/bestrating', booksCtrl.getBestBooks);
 router.get('/:id', booksCtrl.getOneBook);
