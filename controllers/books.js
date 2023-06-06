@@ -8,7 +8,7 @@ exports.createBook = (req, res, next) => {
     const book = new Book({
         ...bookObject,
         userId: req.auth.userId,
-        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.path}`
     });
     book.save()
     .then(() => { res.status(201).json({message: 'Livre enregistré !'})})
@@ -21,7 +21,7 @@ exports.modifyBook = (req, res, next) => {
         if(req.file) {
             const bookObject = {
                 ...JSON.parse(req.body.book),
-                imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+                imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.path}`
             };
             if (book.userId != req.auth.userId) {
                 res.status(401).json({ message : 'Non-autorisé'});

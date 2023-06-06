@@ -33,7 +33,7 @@ const convertToWebp = (req, res, next) => {
                 if (fs.existsSync(originalImagePath)) {
                     fs.unlinkSync(originalImagePath);
                 }
-                req.file.path = outputPath;
+                req.file.path = outputPath.replace('images\\', '');
                 next();
             })
             .catch(error => {
