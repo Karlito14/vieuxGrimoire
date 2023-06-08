@@ -1,5 +1,7 @@
 const http = require('http');
 const app = require('./app');
+require('dotenv').config();
+
 
 // renvoi d'un port valide
 const normalizePort = val => {
@@ -15,7 +17,8 @@ const normalizePort = val => {
 };
 
 // Ajout du port sur lequel doit tourner express
-const port = normalizePort(process.env.PORT || '4000');
+console.log(process.env.PORT)
+const port = normalizePort(process.env.PORT || '5000');
 app.set('port', port);
 
 // recherche des différentes erreurs et Gestion de celles-ci
