@@ -2,14 +2,20 @@ const Book = require('../models/Book');
 const fs = require('fs');
 
 exports.createBook = (req, res, next) => {
+    // Je parse la requete reçu au format string
     const bookObject = JSON.parse(req.body.book);
+    // Suppression du id qui sera géré par la BDD 
     delete bookObject._id;
+    // Suppression du userId car on récupèrera celui du token 
     delete bookObject._userId;
+    // Je créé une nouvelle instance de mon modèle Book
     const book = new Book({
         ...bookObject,
         userId: req.auth.userId,
+        // on génère l'url de l'image
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.path}`
     });
+    // sauvgarde du nouveau livre dans la base de données 
     book.save()
     .then(() => { res.status(201).json({message: 'Livre enregistré !'})})
     .catch(error => {res.status(400).json({ error })})
@@ -52,6 +58,7 @@ exports.modifyBook = (req, res, next) => {
 };
 
 exports.getOneBook = (req, res, next) => {
+    // Je récupère un livre avec l'id passé dans l'url
     Book.findOne({ _id: req.params.id })
     .then(book => res.status(200).json(book))
     .catch(error => res.status(404).json({ error }));
@@ -78,7 +85,7 @@ exports.addRating = (req, res, next) => {
                 .then(() => {
                     Book.findOne({_id: req.params.id})
                     .then(book => {
-                        
+                        // on recalcule la moyenne
                         const somme = book.ratings.reduce((acc, rating) => acc + rating.grade, 0);
                         book.averageRating = Math.round((somme / book.ratings.length) * 10) / 10;
                         
@@ -88,11 +95,11 @@ exports.addRating = (req, res, next) => {
                             .then(book => {
                                 res.status(200).json(book)
                             })
-                            .catch(error => res.status(400).json({ error }));
+                            .catch(error => res.status(404).json({ error }));
                         })   
                         .catch(error => res.status(401).json({ error }));
                     })
-                    .catch(error => res.status(400).json( {error})); 
+                    .catch(error => res.status(404).json( {error})); 
                 })
                 .catch(error => res.status(400).json({ error }));
             }
@@ -104,6 +111,7 @@ exports.addRating = (req, res, next) => {
 exports.deleteBook = (req, res, next) => {
     Book.findOne({_id: req.params.id})
     .then(book => {
+        // vérification si l'utilisateur peut supprimer le livre
         if (book.userId != req.auth.userId) {
             res.status(401).json({ message : 'Non-autorisé'});
         } else {
@@ -127,6 +135,7 @@ exports.getBestBooks = (req, res, next) => {
 };
 
 exports.getAllBooks = (req, res, next ) => {
+    // Je récupère l'ensemble de mes livres 
     Book.find()
     .then(books => res.status(200).json(books))
     .catch(error => res.status(400).json({ error }));
